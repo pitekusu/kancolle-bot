@@ -1,5 +1,5 @@
-import discord
 import os
+import discord
 
 
 TOKEN = os.environ['TOKEN']
