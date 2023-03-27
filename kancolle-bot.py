@@ -1,13 +1,13 @@
 import os
 import discord
-
+from discord import app_commands
 
 TOKEN = os.environ['TOKEN']
 
 intents = discord.Intents.default()
 intents.message_content = True
-tree = app_commands.CommandTree(client)
 
+tree = app_commands.CommandTree(client)
 client = discord.Client(intents=intents)
 
 
