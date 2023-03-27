@@ -20,15 +20,10 @@
                     "valueFrom": "TOKEN"
                 }
             ],
-            "command": [
-                "python3.11",
-                "kancolle-bot.py"
-            ],
             "environment": [],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "workingDirectory": "/app",
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
