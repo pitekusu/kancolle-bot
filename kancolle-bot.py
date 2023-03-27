@@ -6,8 +6,8 @@ TOKEN = os.environ['TOKEN']
 intents = discord.Intents.default()
 intents.message_content = True
 
-tree = app_commands.CommandTree(client)
 client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 
 @client.event
