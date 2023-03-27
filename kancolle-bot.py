@@ -1,5 +1,6 @@
 import os
 import discord
+from discord import app_commands
 
 TOKEN = os.environ['TOKEN']
 
@@ -13,6 +14,7 @@ tree = app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+    await tree.sync()
 
 
 @client.event
@@ -29,7 +31,6 @@ async def on_message(message):
             return
     # ボイスチャンネルに接続する
     await message.author.voice.channel.connect()
-
     await message.channel.send("接続しました！")
 
 @tree.command(name="test",description="テストコマンドです。")
