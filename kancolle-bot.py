@@ -6,11 +6,14 @@ from discord import app_commands
 # ECS環境ではdotenv不要
 load_dotenv()
 
-TOKEN = os.environ['TOKEN']
-MY_GUILD_ID = os.environ['MY_GUILD_ID']
+TOKEN = os.getenv('TOKEN')
+str_textChannelId = os.getenv('textChannelId')
+textChannelId = int(str_textChannelId)
 
-intents = discord.Intents.default()
-intents.message_content = True
+#MY_GUILD_ID = os.environ['MY_GUILD_ID']
+
+intents = discord.Intents.all()
+#intents.message_content = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -18,8 +21,9 @@ tree = app_commands.CommandTree(client)
 
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
-    await tree.sync(guild=discord.Object(id=MY_GUILD_ID))
+    print(f'{client.user}BOT起動！')
+#   await tree.sync(guild=discord.Object(id=MY_GUILD_ID))
+    await tree.sync()
 
 
 @client.event
@@ -39,7 +43,23 @@ async def on_message(message):
         await message.channel.send('接続しました！')
 
 
-@tree.command(name='join', description='ブッキーがボイスチャンネルに来ます', guild=discord.Object(id=MY_GUILD_ID))
+@client.event
+async def on_voice_state_update(member, before, after):
+    if (before.channel != after.channel):
+        alert_channel = client.get_channel(textChannelId)
+        if before.channel is None:
+            msg = f'{member.name} 司令官が {after.channel.name} 鎮守府に着任しました！'
+            await alert_channel.send(msg)
+        elif after.channel is None:
+            msg = f'{member.name} 司令官が {before.channel.name} 鎮守府から離任されました・・・'
+            await alert_channel.send(msg)
+        else:
+            msg = f'{member.name} 司令官が {before.channel.name} 鎮守府から {after.channel.name} 鎮守府に異動しました！'
+            await alert_channel.send(msg)
+
+
+# @tree.command(name='join', description='ブッキーがボイスチャンネルに来ます', guild=discord.Object(id=MY_GUILD_ID))
+@tree.command(name='join', description='ブッキーがボイスチャンネルに来ます')
 async def join_command(interaction: discord.Interaction, channel_name: discord.VoiceChannel):
     await interaction.response.send_message('チャンネルに参加します！')
     await channel_name.connect()
