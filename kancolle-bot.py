@@ -7,8 +7,8 @@ from discord import app_commands
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
-str_textChannelId = os.getenv('textChannelId')
-textChannelId = int(str_textChannelId)
+textChannelId = int(os.getenv('textChannelId'))
+
 
 #MY_GUILD_ID = os.environ['MY_GUILD_ID']
 
