@@ -13,22 +13,22 @@ textChannelId = int(os.getenv('textChannelId'))
 #MY_GUILD_ID = os.environ['MY_GUILD_ID']
 
 intents = discord.Intents.all()
-#intents.message_content = True
+intents.message_content = True
 
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
+fubuki_bot = discord.Client(intents=intents)
+tree = app_commands.CommandTree(fubuki_bot)
 
 
-@client.event
+@fubuki_bot.event
 async def on_ready():
-    print(f'{client.user}BOT起動！')
+    print(f'{fubuki_bot.user}BOT起動！')
 #   await tree.sync(guild=discord.Object(id=MY_GUILD_ID))
     await tree.sync()
 
 
-@client.event
+@fubuki_bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == fubuki_bot.user:
         return
 
     if message.content.startswith('bukki'):
@@ -43,10 +43,12 @@ async def on_message(message):
         await message.channel.send('接続しました！')
 
 
-@client.event
+@fubuki_bot.event
 async def on_voice_state_update(member, before, after):
     if (before.channel != after.channel):
-        alert_channel = client.get_channel(textChannelId)
+        if member.bot == True:
+            return
+        alert_channel = fubuki_bot.get_channel(textChannelId)
         if before.channel is None:
             msg = f'{member.name} 司令官が {after.channel.name} 鎮守府に着任しました！'
             await alert_channel.send(msg)
@@ -61,7 +63,8 @@ async def on_voice_state_update(member, before, after):
 # @tree.command(name='join', description='ブッキーがボイスチャンネルに来ます', guild=discord.Object(id=MY_GUILD_ID))
 @tree.command(name='join', description='ブッキーがボイスチャンネルに来ます')
 async def join_command(interaction: discord.Interaction, channel_name: discord.VoiceChannel):
-    await interaction.response.send_message('チャンネルに参加します！')
+    msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
+    await interaction.response.send_message(msg)
     await channel_name.connect()
 
-client.run(TOKEN)
+fubuki_bot.run(TOKEN)
