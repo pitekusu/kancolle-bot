@@ -8,7 +8,8 @@ COPY . /app
 #ECS環境ではdotenv不要
 RUN python -m pip install \
     discord.py[voice] \
-    python-dotenv
+    python-dotenv \
+    pynamodb
 
 
 
