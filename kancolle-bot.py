@@ -32,7 +32,7 @@ textChannelId = int(os.getenv('textChannelId'))
 JST = timezone(timedelta(hours=+9), 'JST')
 
 # 1時間ごとのdateTimeListを作成
-dateTimeList = [f'{i:02d}' for i in range(25)]
+dateTimeList = [f'{i:02d}:00:00' for i in range(25)]
 
 #MY_GUILD_ID = os.environ['MY_GUILD_ID']
 
@@ -92,10 +92,9 @@ async def on_voice_state_update(member, before, after):
 @tasks.loop(seconds=1)
 async def loop():
     now = datetime.now(JST).strftime('%H:%M:%S')
-    jikan = int(datetime.now(JST).strftime('%H'))
     if now in dateTimeList:
         alert_channel = fubuki_bot.get_channel(textChannelId)
-        jikan = datetime.now(JST).strftime('%H')
+        jikan = int(datetime.now(JST).strftime('%H'))
         msg = Kanmusu.Jihou[jikan]
         await alert_channel.send(msg)
 
