@@ -36,6 +36,7 @@
         }
     ],
     "family": "kancolle-bot-DEFINITION",
+    "taskRoleArn": "arn:aws:iam::921464148674:role/Kancolle-Task-Role",
     "executionRoleArn": "arn:aws:iam::921464148674:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "volumes": [],
