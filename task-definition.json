@@ -18,6 +18,10 @@
                 {
                     "name": "TOKEN",
                     "valueFrom": "TOKEN"
+                },
+                {
+                    "name": "textChannelId",
+                    "valueFrom": "textChannelId"
                 }
             ],
             "environment": [],
