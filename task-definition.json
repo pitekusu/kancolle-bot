@@ -22,6 +22,10 @@
                 {
                     "name": "textChannelId",
                     "valueFrom": "textChannelId"
+                },
+                {
+                    "name": "S3_BUCKET_NAME",
+                    "valueFrom": "S3_BUCKET_NAME"
                 }
             ],
             "environment": [],
