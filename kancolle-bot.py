@@ -1,4 +1,5 @@
 import os
+import asyncio
 import boto3
 
 from pathlib import Path
@@ -7,8 +8,8 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 import discord
-from discord.ext import tasks
-from discord import app_commands
+from discord.ext import commands, tasks
+from discord import app_commands, HTTPException, VoiceState
 
 from pynamodb.attributes import ListAttribute, NumberAttribute, UnicodeAttribute
 from pynamodb.models import Model
@@ -37,7 +38,10 @@ s3 = boto3.resource('s3',
                     aws_access_key_id=os.getenv('aws_access_key_id'),
                     aws_secret_access_key=os.getenv('aws_secret_access_key'))
 
-TOKEN = os.getenv('TOKEN')
+#Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
+Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
+DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
+
 textChannelId = int(os.getenv('textChannelId'))
 
 
@@ -50,6 +54,8 @@ intents = discord.Intents.all()
 intents.message_content = True
 
 fubuki_bot = discord.Client(intents=intents)
+kongou_bot = discord.Client(intents=intents)
+
 tree = app_commands.CommandTree(fubuki_bot)
 
 
@@ -58,6 +64,11 @@ async def on_ready():
     print(f'{fubuki_bot.user}BOT起動！')
     await tree.sync()
     await loop.start()
+    await loop2.start()
+
+@kongou_bot.event
+async def on_ready():
+    print(f'{kongou_bot.user}BOT起動！')
 
 
 @fubuki_bot.event
@@ -73,24 +84,7 @@ async def on_message(message):
         await message.channel.send(f'艦種GET: {Kanmusu.Kanshu}')
 
     if message.content.startswith('jihou'):
-        jikan = datetime.now(JST).strftime('%H')
-        alert_channel = fubuki_bot.get_channel(textChannelId)
-        if discord.utils.get(fubuki_bot.voice_clients) is None:
-            await alert_channel.send("しれいか～ん...吹雪もボイスチャンネルに呼んでほしいです...")
-            return
-        voice_client = discord.utils.get(fubuki_bot.voice_clients)
-        path = f'./{jikan}.opus'
-        if os.path.exists(path) is True:
-            print("ファイルがあったよ")
-            voice_client.play(discord.FFmpegOpusAudio(f"{jikan}.opus"))
-            return
-        print("ファイルがなかったよ")
-        bucket = s3.Bucket(S3_BUCKET_NAME)
-        obj = bucket.Object(f'fubuki/{jikan}.opus')
-        response = obj.get()
-        with open(f"{jikan}.opus", "wb") as f:
-            f.write(response['Body'].read())
-        voice_client.play(discord.FFmpegOpusAudio(f"{jikan}.opus"))
+        await play_sound()
 
 
 @fubuki_bot.event
@@ -121,45 +115,56 @@ async def play_sound():
     jikan = datetime.now(JST).strftime('%H')
     alert_channel = fubuki_bot.get_channel(textChannelId)
     voice_client = discord.utils.get(fubuki_bot.voice_clients)
-    path = Path(f'./{jikan}.opus')
+    folder_name = Kanmusu.Name
+    file_path = Path(os.path.join(folder_name, f"{jikan}.opus"))
 
     if voice_client is None:
         await alert_channel.send("しれいか～ん...吹雪もボイスチャンネルに呼んでほしいです...")
         return
 
-    if path.exists():
-        print("コンテナ内にファイルがあったので、ローカルから読み込むよ。")
+    if file_path.exists():
+        print(f"Dockerコンテナ内に音声ファイルが見つかりました。ファイルをロードします！ファイルは[{file_path}]です。]")
     else:
-        print("コンテナ内にファイルがなかったので、S3からダウンロードするよ。")
-        await download_from_s3(jikan)
+        print(f"コンテナ内に音声ファイルがありませんでした。S3からダウンロードします！ファイルは[{file_path}]です。")
+        await download_from_s3(jikan,folder_name)
 
-    voice_client.play(discord.FFmpegOpusAudio(path))
+    voice_client.play(discord.FFmpegOpusAudio(file_path))
     int_Jikan = int(jikan)
     msg = Kanmusu.Jihou[int_Jikan]
     await alert_channel.send(msg)
 
 
-async def download_from_s3(jikan):
+async def download_from_s3(jikan,folder_name):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    file_path = os.path.join(folder_name, f"{jikan}.opus")
     bucket = s3.Bucket(S3_BUCKET_NAME)
-    obj = bucket.Object(f'fubuki/{jikan}.opus')
+    obj = bucket.Object(file_path)
     response = obj.get()
-    with open(f"{jikan}.opus", "wb") as f:
+    with open(file_path, "wb") as f:
         f.write(response['Body'].read())
 
 
-@tree.command(name='join', description='ブッキーがボイスチャンネルに来ます')
+
+@tree.command(name='join', description='艦娘がボイスチャンネルに来ます')
 async def join_command(interaction: discord.Interaction, channel_name: discord.VoiceChannel):
     if not channel_name:
-        await interaction.response.send_message('ボイスチャンネルに接続できませんでした。')
+        await interaction.response.send_message(f'ボイスチャンネルに接続できませんでした。エラー: {e}')
         return
 
     try:
-        vc = await channel_name.connect()
+        fubuki_vc = await fubuki_bot.get_channel(channel_name.id).connect()
+        kongou_vc = await kongou_bot.get_channel(channel_name.id).connect()
     except Exception as e:
         await interaction.response.send_message(f'ボイスチャンネルに接続できませんでした。エラー: {e}')
         return
 
-    msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
-    await interaction.response.send_message(msg)
+    fubuki_msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
+    kongou_msg = f'金剛、{channel_name.name}鎮守府に着任します！'
+    await interaction.response.send_message(fubuki_msg + '\n' + kongou_msg)
 
-fubuki_bot.run(TOKEN)
+
+loop2 = asyncio.get_event_loop()
+loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
+loop2.create_task(kongou_bot.start(Kongou_TOKEN))
+loop2.run_forever()
