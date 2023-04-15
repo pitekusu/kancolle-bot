@@ -16,8 +16,12 @@
             "essential": true,
             "secrets": [
                 {
-                    "name": "TOKEN",
-                    "valueFrom": "TOKEN"
+                    "name": "Fubuki_TOKEN",
+                    "valueFrom": "Fubuki_TOKEN"
+                },
+                {
+                    "name": "Kongou_TOKEN",
+                    "valueFrom": "Kongou_TOKEN"
                 },
                 {
                     "name": "textChannelId",
