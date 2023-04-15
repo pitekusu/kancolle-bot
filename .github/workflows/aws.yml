@@ -39,7 +39,6 @@ env:
                                                # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: kancolle-bot           # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
-  REGISTRY_ALIAS: y8c0x4y2
 
 permissions:
   contents: read
@@ -62,31 +61,31 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR Public
-      id: login-ecr-public
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-      # パブリックリポジトリ 
-      with:
-        registry-type: public
+#    パブリックリポジトリ 
+#      with:
+#        registry-type: public
 
 #    プライベートリポジトリ
-#    - name: Build, tag, and push image to Amazon ECR
-#      id: build-image
-#      env:
-#        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#        IMAGE_TAG: ${{ github.sha }}
-#      run: |
-#        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-    - name: Build, tag, and push docker image to Amazon ECR Public
+    - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#    - name: Build, tag, and push docker image to Amazon ECR Public
+#      id: build-image
+#      env:
+#        ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+#        IMAGE_TAG: ${{ github.sha }}
+#      run: |
+#        docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
+#        docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+#        echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 
     - name: Fill in the new image ID in the Amazon ECS task definition
