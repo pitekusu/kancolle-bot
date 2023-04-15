@@ -1,7 +1,0 @@
-services:
-  python-service:
-    restart: always
-    build: .
-    container_name: "kancolle-bot"
-    working_dir: "/app"
-    tty: true
