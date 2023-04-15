@@ -38,9 +38,9 @@ s3 = boto3.resource('s3',
                     aws_access_key_id=os.getenv('aws_access_key_id'),
                     aws_secret_access_key=os.getenv('aws_secret_access_key'))
 
-#Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
+Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
 Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
-DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
+#DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
 
 textChannelId = int(os.getenv('textChannelId'))
 
@@ -165,6 +165,7 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
 
 
 loop2 = asyncio.get_event_loop()
-loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
+loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
 loop2.create_task(kongou_bot.start(Kongou_TOKEN))
+#loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
 loop2.run_forever()
