@@ -13,6 +13,7 @@ RUN python -m pip install --no-cache-dir \
     discord.py[voice] \
     python-dotenv \
     pynamodb \
-    boto3
+    boto3 \
+    openai
 
 CMD ["python3.11", "kancolle-bot.py"]
