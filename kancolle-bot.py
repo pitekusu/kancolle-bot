@@ -188,25 +188,37 @@ async def talk_command(interaction: discord.Interaction, message: str):
     
     if len(message_log) >= 20:
         message_log = message_log[10:]
-        return message_log
     
     try:
         await interaction.response.defer()
         message_log.append({"role": "user", "content": message})
         response = send_message_chatgpt(message_log)
         message_log.append({"role": "assistant", "content": response})
-        await interaction.followup.send(f'司令官の質問：{message}'+'\n'+f'吹雪の回答：{response}')
-        
+
+        # 司令官の質問をEmbedに追加
+        embed = discord.Embed(title=':man_pilot: 質問', description=message, color=0x00ff00)
+
+        # 吹雪の回答をEmbedに追加
+        embed.add_field(name=':woman_student: 回答', value=response, inline=False)
+
+        # Embedを送信
+        await interaction.followup.send(embed=embed)
+        print(message_log)
+
     except Exception as e:
         await interaction.response.send_message(f'ブッキーと会話できませんでした。エラー: {e}')
         return
 
 
 @tree.command(name='reset', description='ブッキーが記憶を失います')
-async def talk_command(interaction: discord.Interaction):
+async def reset_command(interaction: discord.Interaction):
     global message_log
     message_log = []
-    await interaction.response.send_message('私は記憶を失いました。な～んにもわからないです！')  
+
+    # リセットメッセージの送信
+    await interaction.response.send_message(
+        ':zany face: 私は記憶を失いました。な～んにもわからないです！'
+    )
 
 
 loop2 = asyncio.get_event_loop()
