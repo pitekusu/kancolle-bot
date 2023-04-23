@@ -40,9 +40,9 @@ s3 = boto3.resource('s3',
                     aws_access_key_id=os.getenv('aws_access_key_id'),
                     aws_secret_access_key=os.getenv('aws_secret_access_key'))
 
-#Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
-#Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
-DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
+Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
+Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
+#DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 textChannelId = int(os.getenv('textChannelId'))
@@ -203,6 +203,7 @@ async def talk_command(interaction: discord.Interaction, message: str):
 
         # Embedを送信
         await interaction.followup.send(embed=embed)
+        print(message_log)
 
     except Exception as e:
         await interaction.response.send_message(f'ブッキーと会話できませんでした。エラー: {e}')
@@ -221,7 +222,7 @@ async def reset_command(interaction: discord.Interaction):
 
 
 loop2 = asyncio.get_event_loop()
-#loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
-#loop2.create_task(kongou_bot.start(Kongou_TOKEN))
-loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
+loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
+loop2.create_task(kongou_bot.start(Kongou_TOKEN))
+#loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
 loop2.run_forever()
