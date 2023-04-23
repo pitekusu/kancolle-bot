@@ -45,6 +45,7 @@ Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
 #DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+textChannelId = int(os.getenv('textChannelId'))
 
 JST = timezone(timedelta(hours=+9), 'JST')
 
