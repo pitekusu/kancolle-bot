@@ -14,6 +14,8 @@ from discord import app_commands, HTTPException, VoiceState
 from pynamodb.attributes import ListAttribute, NumberAttribute, UnicodeAttribute
 from pynamodb.models import Model
 
+import openai
+
 
 load_dotenv()
 
@@ -41,8 +43,7 @@ s3 = boto3.resource('s3',
 Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
 Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
 #DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
-
-textChannelId = int(os.getenv('textChannelId'))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 JST = timezone(timedelta(hours=+9), 'JST')
@@ -58,6 +59,22 @@ kongou_bot = discord.Client(intents=intents)
 
 tree = app_commands.CommandTree(fubuki_bot)
 
+message_log = [{"role": "system", "content": "You are a helpful assistant."}]
+
+def send_message_chatgpt(message_log):
+  response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=message_log,
+    max_tokens=2000,
+    stop=None,
+    temperature=0.7,
+  )
+
+  for choice in response.choices:
+    if "text" in choice:
+      return choice.text
+
+  return response.choices[0].message.content
 
 @fubuki_bot.event
 async def on_ready():
@@ -162,6 +179,33 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
     fubuki_msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
     kongou_msg = f'金剛、{channel_name.name}鎮守府に着任します！'
     await interaction.response.send_message(fubuki_msg + '\n' + kongou_msg)
+
+#tree.commandでtalkコマンドを定義し、send_message_chatgpt関数を呼び出してchatgptと会話する。会話はmessage_logで継続させる。
+@tree.command(name='talk', description='ブッキーと会話します')
+async def talk_command(interaction: discord.Interaction, message: str):
+    global message_log
+    
+    if len(message_log) >= 20:
+        message_log = message_log[10:]
+        return message_log
+    
+    try:
+        await interaction.response.defer()
+        message_log.append({"role": "user", "content": message})
+        response = send_message_chatgpt(message_log)
+        message_log.append({"role": "assistant", "content": response})
+        await interaction.followup.send(f'司令官の質問：{message}'+'\n'+f'吹雪の回答：{response}')
+        
+    except Exception as e:
+        await interaction.response.send_message(f'ブッキーと会話できませんでした。エラー: {e}')
+        return
+
+
+@tree.command(name='reset', description='ブッキーが記憶を失います')
+async def talk_command(interaction: discord.Interaction):
+    global message_log
+    message_log = []
+    await interaction.response.send_message('私は記憶を失いました。な～んにもわからないです！')  
 
 
 loop2 = asyncio.get_event_loop()

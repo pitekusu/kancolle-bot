@@ -28,6 +28,10 @@
                     "valueFrom": "textChannelId"
                 },
                 {
+                    "name": "OPENAI_API_KEY",
+                    "valueFrom": "OPENAI_API_KEY"
+                },
+                {
                     "name": "S3_BUCKET_NAME",
                     "valueFrom": "S3_BUCKET_NAME"
                 }
