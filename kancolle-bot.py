@@ -17,6 +17,10 @@ from pynamodb.models import Model
 import openai
 
 import json
+from logging import getLogger, INFO
+
+logger = getLogger(__name__)
+logger.setLevel(INFO)
 
 load_dotenv()
 
@@ -71,8 +75,9 @@ def send_message_chatgpt(message_log):
     stop=None,
     temperature=0.7,
   )
-  
-  print(json.dumps(response.usage,indent=2, ensure_ascii=False))
+
+  response_dumps = json.dumps(response.usage,indent=2, ensure_ascii=False)
+  logger.info(response_dumps)
   
   for choice in response.choices:
     if "text" in choice:
@@ -199,8 +204,9 @@ async def talk_command(interaction: discord.Interaction, message: str):
         response = send_message_chatgpt(message_log)
         message_log.append({"role": "assistant", "content": response})
 
-        print(json.dumps(message_log,indent=2, ensure_ascii=False))
-
+        message_log_dumps = json.dumps(message_log,indent=2, ensure_ascii=False)
+        logger.info(message_log_dumps)
+        
         # 司令官の質問をEmbedに追加
         embed = discord.Embed(title=':man_pilot: 質問', description=message, color=0x00ff00)
 
