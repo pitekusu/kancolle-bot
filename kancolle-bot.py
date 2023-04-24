@@ -186,8 +186,8 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
 async def talk_command(interaction: discord.Interaction, message: str):
     global message_log
     
-    if len(message_log) >= 20:
-        message_log = message_log[10:]
+    if len(message_log) >= 5:
+        message_log = message_log[2:]
     
     try:
         await interaction.response.defer()
