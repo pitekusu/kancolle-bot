@@ -217,7 +217,7 @@ async def reset_command(interaction: discord.Interaction):
 
     # リセットメッセージの送信
     await interaction.response.send_message(
-        ':zany face: 私は記憶を失いました。な～んにもわからないです！'
+        ':zanyface: 私は記憶を失いました。な～んにもわからないです！'
     )
 
 
