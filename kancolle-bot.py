@@ -18,7 +18,6 @@ import openai
 
 import json
 
-
 load_dotenv()
 
 
@@ -72,10 +71,13 @@ def send_message_chatgpt(message_log):
     stop=None,
     temperature=0.7,
   )
-
+  
+  print(json.dumps(response.usage,indent=2, ensure_ascii=False))
+  
   for choice in response.choices:
     if "text" in choice:
       return choice.text
+
   
   return response.choices[0].message.content
 
@@ -196,6 +198,8 @@ async def talk_command(interaction: discord.Interaction, message: str):
         message_log.append({"role": "user", "content": message})
         response = send_message_chatgpt(message_log)
         message_log.append({"role": "assistant", "content": response})
+
+        print(json.dumps(message_log,indent=2, ensure_ascii=False))
 
         # 司令官の質問をEmbedに追加
         embed = discord.Embed(title=':man_pilot: 質問', description=message, color=0x00ff00)
