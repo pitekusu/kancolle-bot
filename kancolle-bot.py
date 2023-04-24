@@ -16,6 +16,8 @@ from pynamodb.models import Model
 
 import openai
 
+import json
+
 
 load_dotenv()
 
@@ -75,7 +77,7 @@ def send_message_chatgpt(message_log):
     if "text" in choice:
       return choice.text
   
-  print(response)
+  print(json.load(response))
   
   return response.choices[0].message.content
 
