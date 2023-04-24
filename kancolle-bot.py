@@ -77,8 +77,6 @@ def send_message_chatgpt(message_log):
     if "text" in choice:
       return choice.text
   
-  print(json.load(response))
-  
   return response.choices[0].message.content
 
 @fubuki_bot.event
