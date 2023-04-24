@@ -46,7 +46,8 @@
                     "awslogs-create-group": "true",
                     "awslogs-group": "/ecs/kancolle-bot-DEFINITION",
                     "awslogs-region": "ap-northeast-1",
-                    "awslogs-stream-prefix": "ecs"
+                    "awslogs-stream-prefix": "ecs",
+                    "awslogs-format": "json"
                 }
             }
         }
