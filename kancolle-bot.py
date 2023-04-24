@@ -74,7 +74,9 @@ def send_message_chatgpt(message_log):
   for choice in response.choices:
     if "text" in choice:
       return choice.text
-
+  
+  print(response)
+  
   return response.choices[0].message.content
 
 @fubuki_bot.event
@@ -203,7 +205,6 @@ async def talk_command(interaction: discord.Interaction, message: str):
 
         # Embedを送信
         await interaction.followup.send(embed=embed)
-        print(message_log)
 
     except Exception as e:
         await interaction.response.send_message(f'ブッキーと会話できませんでした。エラー: {e}')
