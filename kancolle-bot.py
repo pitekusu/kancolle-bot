@@ -28,6 +28,12 @@ class CustomClient(discord.Client):
 
 load_dotenv()
 
+def start(
+    client: discord.client,
+    port: int = 40404,
+    bot_max_latency: float = 0.5
+) -> Awaitable[asyncio.base_events.Server]
+
 
 class kancolle_table(Model):
     class Meta:
