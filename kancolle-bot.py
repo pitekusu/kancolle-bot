@@ -16,11 +16,15 @@ from pynamodb.models import Model
 
 import openai
 
-import json
-from logging import getLogger, INFO
+import discordhealthcheck
 
-logger = getLogger(__name__)
-logger.setLevel(INFO)
+class CustomClient(discord.Client):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def setup_hook(self):
+        self.healthcheck_server = await discordhealthcheck.start(self)
+        # Later you can close or check on self.healthcheck_server
 
 load_dotenv()
 
@@ -75,9 +79,6 @@ def send_message_chatgpt(message_log):
     stop=None,
     temperature=0.7,
   )
-
-  response_dumps = json.dumps(response.usage,indent=2, ensure_ascii=False)
-  logger.info(response_dumps)
   
   for choice in response.choices:
     if "text" in choice:
@@ -195,8 +196,8 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
 async def talk_command(interaction: discord.Interaction, message: str):
     global message_log
     
-    if len(message_log) >= 20:
-        message_log = message_log[10:]
+    if len(message_log) >= 10:
+        message_log = message_log[5:]
     
     try:
         await interaction.response.defer()
@@ -204,9 +205,7 @@ async def talk_command(interaction: discord.Interaction, message: str):
         response = send_message_chatgpt(message_log)
         message_log.append({"role": "assistant", "content": response})
 
-        message_log_dumps = json.dumps(message_log,indent=2, ensure_ascii=False)
-        logger.info(message_log_dumps)
-        
+       
         # 司令官の質問をEmbedに追加
         embed = discord.Embed(title=':man_pilot: 質問', description=message, color=0x00ff00)
 
