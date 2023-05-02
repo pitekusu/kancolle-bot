@@ -8,32 +8,15 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 import discord
-from discord.ext import commands, tasks
-from discord import app_commands, HTTPException, VoiceState
+from discord.ext import tasks
+from discord import app_commands
 
 from pynamodb.attributes import ListAttribute, NumberAttribute, UnicodeAttribute
 from pynamodb.models import Model
 
 import openai
 
-import discordhealthcheck
-
-class CustomClient(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    async def setup_hook(self):
-        self.healthcheck_server = await discordhealthcheck.start(self)
-        # Later you can close or check on self.healthcheck_server
-
 load_dotenv()
-
-def start(
-    client: discord.client,
-    port: int = 40404,
-    bot_max_latency: float = 0.5
-) -> Awaitable[asyncio.base_events.Server]
-
 
 class kancolle_table(Model):
     class Meta:

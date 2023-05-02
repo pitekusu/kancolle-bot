@@ -48,15 +48,6 @@
                     "awslogs-region": "ap-northeast-1",
                     "awslogs-stream-prefix": "ecs"
                 }
-            },
-            "healthCheck": {
-                "command": [
-                    "CMD-SHELL",
-                    "HEALTHCHECK CMD discordhealthcheck || exit 1"
-                ],
-                "interval": 30,
-                "timeout": 5,
-                "retries": 3
             }
         }
     ],

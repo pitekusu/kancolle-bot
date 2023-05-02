@@ -14,7 +14,6 @@ RUN python -m pip install --no-cache-dir \
     python-dotenv \
     pynamodb \
     boto3 \
-    discordhealthcheck \
     openai
 
 CMD ["python3.11", "kancolle-bot.py"]
