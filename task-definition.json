@@ -24,6 +24,14 @@
                     "valueFrom": "Kongou_TOKEN"
                 },
                 {
+                    "name": "Teruduki_TOKEN",
+                    "valueFrom": "Teruduki_TOKEN"
+                },
+                {
+                    "name": "Pola_TOKEN",
+                    "valueFrom": "Pola_TOKEN"
+                },
+                {
                     "name": "textChannelId",
                     "valueFrom": "textChannelId"
                 },
