@@ -30,7 +30,9 @@ class kancolle_table(Model):
     Name = UnicodeAttribute(null=False)
     Kanshu = UnicodeAttribute(null=False)
     Jihou = ListAttribute(null=False)
-
+    Name_J = UnicodeAttribute(null=False)
+    Kanshu_J = UnicodeAttribute(null=False)    
+    
 
 # 吹雪ちゃん(Id=0)の情報を取得
 Kanmusu = kancolle_table.get(0)
@@ -42,6 +44,8 @@ s3 = boto3.resource('s3',
 
 Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
 Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
+Pola_TOKEN = os.getenv('Pola_TOKEN')
+Teruduki_TOKEN = os.getenv('Teruduki_TOKEN')
 #DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
 #DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -58,6 +62,9 @@ intents.message_content = True
 
 fubuki_bot = discord.Client(intents=intents)
 kongou_bot = discord.Client(intents=intents)
+pola_bot = discord.Client(intents=intents)
+teruduki_bot = discord.Client(intents=intents)
+
 
 tree = app_commands.CommandTree(fubuki_bot)
 
@@ -86,10 +93,6 @@ async def on_ready():
     await loop.start()
     await loop2.start()
 
-@kongou_bot.event
-async def on_ready():
-    print(f'{kongou_bot.user}BOT起動！')
-
 
 @fubuki_bot.event
 async def on_message(message):
@@ -98,10 +101,10 @@ async def on_message(message):
         return
 
     if message.content.startswith('namae'):
-        await message.channel.send(f'艦娘名GET: {Kanmusu.Name}')
+        await message.channel.send(f'艦娘名GET: {Kanmusu.Name_J}')
 
     if message.content.startswith('kanshu'):
-        await message.channel.send(f'艦種GET: {Kanmusu.Kanshu}')
+        await message.channel.send(f'艦種GET: {Kanmusu.Kanshu_J}')
 
     if message.content.startswith('jihou'):
         await play_sound()
@@ -135,7 +138,7 @@ async def loop():
         global Kanmusu
         Kanmusu = kancolle_table.get(random_num)
         alert_channel = fubuki_bot.get_channel(textChannelId)
-        await alert_channel.send(f'明日は{Kanmusu.Name}が時刻をお知らせします！')
+        await alert_channel.send(f'明日は{Kanmusu.Name_J}が時刻をお知らせします！')
 
 
 
@@ -185,12 +188,17 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
     try:
         fubuki_vc = await fubuki_bot.get_channel(channel_name.id).connect()
         kongou_vc = await kongou_bot.get_channel(channel_name.id).connect()
+        pola_vc = await pola_bot.get_channel(channel_name.id).connect()
+        teruduki_vc = await teruduki_bot.get_channel(channel_name.id).connect()
     except Exception as e:
         await interaction.response.send_message(f'ボイスチャンネルに接続できませんでした。エラー: {e}')
         return
 
     fubuki_msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
     kongou_msg = f'金剛、{channel_name.name}鎮守府に着任します！'
+    pola_msg = f'ポーラ、{channel_name.name}鎮守府に着任します！'
+    teruduki_msg = f'照月、{channel_name.name}鎮守府に着任します！'
+    
     await interaction.response.send_message(fubuki_msg + '\n' + kongou_msg)
 
 #tree.commandでtalkコマンドを定義し、send_message_chatgpt関数を呼び出してchatgptと会話する。会話はmessage_logで継続させる。
@@ -239,7 +247,9 @@ async def reset_command(interaction: discord.Interaction):
 @discord.app_commands.choices(
     kanmusu_name=[
         discord.app_commands.Choice(name="吹雪",value=0),
-        discord.app_commands.Choice(name="金剛",value=1)
+        discord.app_commands.Choice(name="金剛",value=1),
+        discord.app_commands.Choice(name="Pola",value=2),
+        discord.app_commands.Choice(name="照月",value=3)
     ]
 )
 async def select_kanmusu_command(interaction: discord.Interaction, kanmusu_name: app_commands.Choice[int]):
@@ -248,7 +258,7 @@ async def select_kanmusu_command(interaction: discord.Interaction, kanmusu_name:
     Kanmusu = kancolle_table.get(kanmusu_name.value)
     #艦娘が選択されたことをメッセージで送信する
     await interaction.response.send_message(
-        f'{Kanmusu.Name}が時報担当艦に選ばれました！'
+        f'{Kanmusu.Name_J}が時報担当艦に選ばれました！'
     )
 
 # 全ての艦娘を取得する関数
@@ -292,6 +302,8 @@ async def kanmusu_list_command(interaction: discord.Interaction):
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
 loop2.create_task(kongou_bot.start(Kongou_TOKEN))
+loop2.create_task(pola_bot.start(Pola_TOKEN))
+loop2.create_task(teruduki_bot.start(Teruduki_TOKEN))
 #loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
 #loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
 loop2.run_forever()
