@@ -1,5 +1,7 @@
 import os
 import asyncio
+from typing import List, Dict, Any
+import random
 import boto3
 
 from pathlib import Path
@@ -41,6 +43,7 @@ s3 = boto3.resource('s3',
 Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
 Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
 #DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
+#DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 textChannelId = int(os.getenv('textChannelId'))
@@ -126,12 +129,22 @@ async def loop():
     now = datetime.now(JST).strftime('%H:%M:%S')
     if now in dateTimeList:
         await play_sound()
+    elif now == '23:45:00':
+        kanmusu_count = len(get_all_kanmusu())
+        random_num = random.randint(0, kanmusu_count - 1)
+        global Kanmusu
+        Kanmusu = kancolle_table.get(random_num)
+        alert_channel = fubuki_bot.get_channel(textChannelId)
+        await alert_channel.send(f'明日は{Kanmusu.Name}が時刻をお知らせします！')
+
 
 
 async def play_sound():
+    botName = Kanmusu.Name + '_bot' 
+    gBotName = globals()[botName]   
     jikan = datetime.now(JST).strftime('%H')
-    alert_channel = fubuki_bot.get_channel(textChannelId)
-    voice_client = discord.utils.get(fubuki_bot.voice_clients)
+    alert_channel = gBotName.get_channel(textChannelId)
+    voice_client = discord.utils.get(gBotName.voice_clients)
     folder_name = Kanmusu.Name
     file_path = Path(os.path.join(folder_name, f"{jikan}.opus"))
 
@@ -219,9 +232,66 @@ async def reset_command(interaction: discord.Interaction):
         ':zany_face: 私は記憶を失いました。な～んにもわからないです！'
     )
 
+@tree.command(
+    name='select',
+    description='時報担当艦を選択します。'
+)
+@discord.app_commands.choices(
+    kanmusu_name=[
+        discord.app_commands.Choice(name="吹雪",value=0),
+        discord.app_commands.Choice(name="金剛",value=1)
+    ]
+)
+async def select_kanmusu_command(interaction: discord.Interaction, kanmusu_name: app_commands.Choice[int]):
+    global Kanmusu
+    #選択された艦娘の名前を取得し、pynamodbのclass kancolle_table(Model)からIdを取得する
+    Kanmusu = kancolle_table.get(kanmusu_name.value)
+    #艦娘が選択されたことをメッセージで送信する
+    await interaction.response.send_message(
+        f'{Kanmusu.Name}が時報担当艦に選ばれました！'
+    )
+
+# 全ての艦娘を取得する関数
+def get_all_kanmusu() -> List[Dict[str, Any]]:
+    kanmusu_list = []
+    for kanmusu in Kanmusu.scan():
+        kanmusu_list.append(kanmusu.attribute_values)
+    return kanmusu_list
+
+# kanmusu_listコマンドを定義する関数
+async def get_kanmusu_list_embed() -> discord.Embed:
+    kanmusu_list = get_all_kanmusu()
+
+    embed = discord.Embed(
+        title=':anchor: 艦娘一覧',
+        description='所属している艦娘の一覧です！',
+        color=0x00ff00
+    )
+    for kanmusu in kanmusu_list:
+        embed.add_field(
+            name='名前：'+ kanmusu['Name'],
+            value='艦種：'+ kanmusu['Kanshu']
+        )
+    embed.add_field(
+        name='人数',
+        value=str(len(kanmusu_list))+'人',
+        inline=False
+    )
+    return embed
+
+# treeコマンドの定義
+@tree.command(
+    name='kanmusu_list',
+    description='所属している艦娘一覧を表示します'
+)
+async def kanmusu_list_command(interaction: discord.Interaction):
+    embed = await get_kanmusu_list_embed()
+    await interaction.response.send_message(embed=embed)
+
 
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
 loop2.create_task(kongou_bot.start(Kongou_TOKEN))
 #loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
+#loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
 loop2.run_forever()
