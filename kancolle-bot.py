@@ -20,42 +20,46 @@ import openai
 
 load_dotenv()
 
+
 class kancolle_table(Model):
     class Meta:
-        aws_access_key_id = os.getenv('aws_access_key_id')
-        aws_secret_access_key = os.getenv('aws_secret_access_key')
-        region = 'ap-northeast-1'
+        aws_access_key_id = os.getenv("aws_access_key_id")
+        aws_secret_access_key = os.getenv("aws_secret_access_key")
+        region = "ap-northeast-1"
         table_name = "kancolle_table"
+
     Id = NumberAttribute(hash_key=True)
     Name = UnicodeAttribute(null=False)
     Kanshu = UnicodeAttribute(null=False)
     Jihou = ListAttribute(null=False)
     Name_J = UnicodeAttribute(null=False)
-    Kanshu_J = UnicodeAttribute(null=False)    
-    
+    Kanshu_J = UnicodeAttribute(null=False)
+
 
 # 吹雪ちゃん(Id=0)の情報を取得
 Kanmusu = kancolle_table.get(0)
 
-S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
-s3 = boto3.resource('s3',
-                    aws_access_key_id=os.getenv('aws_access_key_id'),
-                    aws_secret_access_key=os.getenv('aws_secret_access_key'))
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+s3 = boto3.resource(
+    "s3",
+    aws_access_key_id=os.getenv("aws_access_key_id"),
+    aws_secret_access_key=os.getenv("aws_secret_access_key"),
+)
 
-Fubuki_TOKEN = os.getenv('Fubuki_TOKEN')
-Kongou_TOKEN =  os.getenv('Kongou_TOKEN')
-Pola_TOKEN = os.getenv('Pola_TOKEN')
-Teruduki_TOKEN = os.getenv('Teruduki_TOKEN')
-#DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
-#DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
+Fubuki_TOKEN = os.getenv("Fubuki_TOKEN")
+Kongou_TOKEN = os.getenv("Kongou_TOKEN")
+Pola_TOKEN = os.getenv("Pola_TOKEN")
+Teruduki_TOKEN = os.getenv("Teruduki_TOKEN")
+# DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
+# DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-textChannelId = int(os.getenv('textChannelId'))
+textChannelId = int(os.getenv("textChannelId"))
 
-JST = timezone(timedelta(hours=+9), 'JST')
+JST = timezone(timedelta(hours=+9), "JST")
 
 # 00:00:00から23:00:00のリストを作成
-dateTimeList = [f'{i:02d}:00:00' for i in range(24)]
+dateTimeList = [f"{i:02d}:00:00" for i in range(24)]
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -70,25 +74,25 @@ tree = app_commands.CommandTree(fubuki_bot)
 
 message_log = [{"role": "system", "content": "You are a helpful assistant."}]
 
-def send_message_chatgpt(message_log):
-  response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=message_log,
-    max_tokens=2000,
-    stop=None,
-    temperature=0.7,
-  )
-  
-  for choice in response.choices:
-    if "text" in choice:
-      return choice.text
 
-  
-  return response.choices[0].message.content
+def send_message_chatgpt(message_log):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=message_log,
+        max_tokens=2000,
+        stop=None,
+        temperature=0.7,
+    )
+    for choice in response.choices:
+        if "text" in choice:
+            return choice.text
+
+    return response.choices[0].message.content
+
 
 @fubuki_bot.event
 async def on_ready():
-    print(f'{fubuki_bot.user}BOT起動！')
+    print(f"{fubuki_bot.user}BOT起動！")
     await tree.sync()
     await loop.start()
     await loop2.start()
@@ -96,17 +100,16 @@ async def on_ready():
 
 @fubuki_bot.event
 async def on_message(message):
-
     if message.author == fubuki_bot.user:
         return
 
-    if message.content.startswith('namae'):
-        await message.channel.send(f'艦娘名GET: {Kanmusu.Name_J}')
+    if message.content.startswith("namae"):
+        await message.channel.send(f"艦娘名GET: {Kanmusu.Name_J}")
 
-    if message.content.startswith('kanshu'):
-        await message.channel.send(f'艦種GET: {Kanmusu.Kanshu_J}')
+    if message.content.startswith("kanshu"):
+        await message.channel.send(f"艦種GET: {Kanmusu.Kanshu_J}")
 
-    if message.content.startswith('jihou'):
+    if message.content.startswith("jihou"):
         await play_sound()
 
 
@@ -117,35 +120,34 @@ async def on_voice_state_update(member, before, after):
         if member.bot:
             return
         if before.channel and after.channel:
-            msg = f':arrows_counterclockwise: {member.display_name} 司令官が {before.channel.name} 鎮守府から {after.channel.name} 鎮守府に異動しました！'
+            msg = f":arrows_counterclockwise: {member.display_name} 司令官が {before.channel.name} 鎮守府から {after.channel.name} 鎮守府に異動しました！"
             await alert_channel.send(msg)
         elif before.channel:
-            msg = f':outbox_tray: {member.display_name} 司令官が {before.channel.name} 鎮守府から離任されました…'
+            msg = f":outbox_tray: {member.display_name} 司令官が {before.channel.name} 鎮守府から離任されました…"
             await alert_channel.send(msg)
         elif after.channel:
-            msg = f':inbox_tray: {member.display_name} 司令官が {after.channel.name} 鎮守府に着任しました！'
+            msg = f":inbox_tray: {member.display_name} 司令官が {after.channel.name} 鎮守府に着任しました！"
             await alert_channel.send(msg)
 
 
 @tasks.loop(seconds=1)
 async def loop():
-    now = datetime.now(JST).strftime('%H:%M:%S')
+    now = datetime.now(JST).strftime("%H:%M:%S")
     if now in dateTimeList:
         await play_sound()
-    elif now == '23:45:00':
+    elif now == "23:45:00":
         kanmusu_count = len(get_all_kanmusu())
         random_num = random.randint(0, kanmusu_count - 1)
         global Kanmusu
         Kanmusu = kancolle_table.get(random_num)
         alert_channel = fubuki_bot.get_channel(textChannelId)
-        await alert_channel.send(f'明日は{Kanmusu.Name_J}が時刻をお知らせします！')
-
+        await alert_channel.send(f"明日は{Kanmusu.Name_J}が時刻をお知らせします！")
 
 
 async def play_sound():
-    botName = Kanmusu.Name + '_bot' 
-    gBotName = globals()[botName]   
-    jikan = datetime.now(JST).strftime('%H')
+    botName = Kanmusu.Name + "_bot"
+    gBotName = globals()[botName]
+    jikan = datetime.now(JST).strftime("%H")
     alert_channel = gBotName.get_channel(textChannelId)
     voice_client = discord.utils.get(gBotName.voice_clients)
     folder_name = Kanmusu.Name
@@ -159,7 +161,7 @@ async def play_sound():
         print(f"Dockerコンテナ内に音声ファイルが見つかりました。ファイルをロードします！ファイルは[{file_path}]です。]")
     else:
         print(f"コンテナ内に音声ファイルがありませんでした。S3からダウンロードします！ファイルは[{file_path}]です。")
-        await download_from_s3(jikan,folder_name)
+        await download_from_s3(jikan, folder_name)
 
     voice_client.play(discord.FFmpegOpusAudio(file_path))
     int_Jikan = int(jikan)
@@ -167,7 +169,7 @@ async def play_sound():
     await alert_channel.send(msg)
 
 
-async def download_from_s3(jikan,folder_name):
+async def download_from_s3(jikan, folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     file_path = os.path.join(folder_name, f"{jikan}.opus")
@@ -175,14 +177,15 @@ async def download_from_s3(jikan,folder_name):
     obj = bucket.Object(file_path)
     response = obj.get()
     with open(file_path, "wb") as f:
-        f.write(response['Body'].read())
+        f.write(response["Body"].read())
 
 
-
-@tree.command(name='join', description='艦娘がボイスチャンネルに来ます')
-async def join_command(interaction: discord.Interaction, channel_name: discord.VoiceChannel):
+@tree.command(name="join", description="艦娘がボイスチャンネルに来ます")
+async def join_command(
+    interaction: discord.Interaction, channel_name: discord.VoiceChannel
+):
     if not channel_name:
-        await interaction.response.send_message(f'ボイスチャンネルに接続できませんでした。エラー: {e}')
+        await interaction.response.send_message(f"ボイスチャンネルに接続できませんでした。エラー: {e}")
         return
 
     try:
@@ -191,75 +194,70 @@ async def join_command(interaction: discord.Interaction, channel_name: discord.V
         pola_vc = await pola_bot.get_channel(channel_name.id).connect()
         teruduki_vc = await teruduki_bot.get_channel(channel_name.id).connect()
     except Exception as e:
-        await interaction.response.send_message(f'ボイスチャンネルに接続できませんでした。エラー: {e}')
+        await interaction.response.send_message(f"ボイスチャンネルに接続できませんでした。エラー: {e}")
         return
 
-    fubuki_msg = f'吹雪、{channel_name.name}鎮守府に着任します！'
-    kongou_msg = f'金剛、{channel_name.name}鎮守府に着任します！'
-    pola_msg = f'ポーラ、{channel_name.name}鎮守府に着任します！'
-    teruduki_msg = f'照月、{channel_name.name}鎮守府に着任します！'
-    
-    await interaction.response.send_message(fubuki_msg + '\n' + kongou_msg)
+    fubuki_msg = f"吹雪以下{str(len(get_all_kanmusu()))}名、{channel_name.name}鎮守府に着任します！"
 
-#tree.commandでtalkコマンドを定義し、send_message_chatgpt関数を呼び出してchatgptと会話する。会話はmessage_logで継続させる。
-@tree.command(name='talk', description='ブッキーと会話します')
+    await interaction.response.send_message(fubuki_msg)
+
+
+@tree.command(name="talk", description="ブッキーと会話します")
 async def talk_command(interaction: discord.Interaction, message: str):
     global message_log
-    
+
     if len(message_log) >= 10:
         message_log = message_log[5:]
-    
+
     try:
         await interaction.response.defer()
         message_log.append({"role": "user", "content": message})
         response = send_message_chatgpt(message_log)
         message_log.append({"role": "assistant", "content": response})
 
-       
         # 司令官の質問をEmbedに追加
-        embed = discord.Embed(title=':man_pilot: 質問', description=message, color=0x00ff00)
+        embed = discord.Embed(
+            title=":man_pilot: 質問", description=message, color=0x00FF00
+        )
 
         # 吹雪の回答をEmbedに追加
-        embed.add_field(name=':woman_student: 回答', value=response, inline=False)
+        embed.add_field(name=":woman_student: 回答", value=response, inline=False)
 
         # Embedを送信
         await interaction.followup.send(embed=embed)
 
     except Exception as e:
-        await interaction.response.send_message(f'ブッキーと会話できませんでした。エラー: {e}')
+        await interaction.response.send_message(f"ブッキーと会話できませんでした。エラー: {e}")
         return
 
 
-@tree.command(name='reset', description='ブッキーが記憶を失います')
+@tree.command(name="reset", description="ブッキーが記憶を失います")
 async def reset_command(interaction: discord.Interaction):
     global message_log
     message_log = []
 
     # リセットメッセージの送信
-    await interaction.response.send_message(
-        ':zany_face: 私は記憶を失いました。な～んにもわからないです！'
-    )
+    await interaction.response.send_message(":zany_face: 私は記憶を失いました。な～んにもわからないです！")
 
-@tree.command(
-    name='select',
-    description='時報担当艦を選択します。'
-)
+
+@tree.command(name="select", description="時報担当艦を選択します。")
 @discord.app_commands.choices(
     kanmusu_name=[
-        discord.app_commands.Choice(name="吹雪",value=0),
-        discord.app_commands.Choice(name="金剛",value=1),
-        discord.app_commands.Choice(name="Pola",value=2),
-        discord.app_commands.Choice(name="照月",value=3)
+        discord.app_commands.Choice(name="吹雪", value=0),
+        discord.app_commands.Choice(name="金剛", value=1),
+        discord.app_commands.Choice(name="Pola", value=2),
+        discord.app_commands.Choice(name="照月", value=3),
     ]
 )
-async def select_kanmusu_command(interaction: discord.Interaction, kanmusu_name: app_commands.Choice[int]):
+async def select_kanmusu_command(
+    interaction: discord.Interaction, kanmusu_name: app_commands.Choice[int]
+):
     global Kanmusu
-    #選択された艦娘の名前を取得し、pynamodbのclass kancolle_table(Model)からIdを取得する
+    # 選択された艦娘の名前を取得し、pynamodbのclass kancolle_table(Model)からIdを取得する
     Kanmusu = kancolle_table.get(kanmusu_name.value)
-    #艦娘が選択されたことをメッセージで送信する
-    await interaction.response.send_message(
-        f'{Kanmusu.Name_J}が時報担当艦に選ばれました！'
-    )
+    # 艦娘が選択されたことをメッセージで送信する
+    await interaction.response.send_message(f"{Kanmusu.Name_J}が時報担当艦に選ばれました！")
+
 
 # 全ての艦娘を取得する関数
 def get_all_kanmusu() -> List[Dict[str, Any]]:
@@ -268,32 +266,24 @@ def get_all_kanmusu() -> List[Dict[str, Any]]:
         kanmusu_list.append(kanmusu.attribute_values)
     return kanmusu_list
 
+
 # kanmusu_listコマンドを定義する関数
 async def get_kanmusu_list_embed() -> discord.Embed:
     kanmusu_list = get_all_kanmusu()
 
     embed = discord.Embed(
-        title=':anchor: 艦娘一覧',
-        description='所属している艦娘の一覧です！',
-        color=0x00ff00
+        title=":anchor: 艦娘一覧", description="所属している艦娘の一覧です！", color=0x00FF00
     )
     for kanmusu in kanmusu_list:
         embed.add_field(
-            name='名前：'+ kanmusu['Name'],
-            value='艦種：'+ kanmusu['Kanshu']
+            name="名前：" + kanmusu["Name_J"], value="艦種：" + kanmusu["Kanshu_J"]
         )
-    embed.add_field(
-        name='人数',
-        value=str(len(kanmusu_list))+'人',
-        inline=False
-    )
+    embed.add_field(name="人数", value=str(len(kanmusu_list)) + "人", inline=False)
     return embed
 
+
 # treeコマンドの定義
-@tree.command(
-    name='kanmusu_list',
-    description='所属している艦娘一覧を表示します'
-)
+@tree.command(name="kanmusu_list", description="所属している艦娘一覧を表示します")
 async def kanmusu_list_command(interaction: discord.Interaction):
     embed = await get_kanmusu_list_embed()
     await interaction.response.send_message(embed=embed)
@@ -304,6 +294,6 @@ loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
 loop2.create_task(kongou_bot.start(Kongou_TOKEN))
 loop2.create_task(pola_bot.start(Pola_TOKEN))
 loop2.create_task(teruduki_bot.start(Teruduki_TOKEN))
-#loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
-#loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
+# loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
+# loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
 loop2.run_forever()
