@@ -50,6 +50,8 @@ Fubuki_TOKEN = os.getenv("Fubuki_TOKEN")
 Kongou_TOKEN = os.getenv("Kongou_TOKEN")
 Pola_TOKEN = os.getenv("Pola_TOKEN")
 Teruduki_TOKEN = os.getenv("Teruduki_TOKEN")
+Ooyodo_TOKEN = os.getenv("Ooyodo_TOKEN")
+Kashima_TOKEN = os.getenv("Kashima_TOKEN")
 # DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
 # DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -68,6 +70,8 @@ fubuki_bot = discord.Client(intents=intents)
 kongou_bot = discord.Client(intents=intents)
 pola_bot = discord.Client(intents=intents)
 teruduki_bot = discord.Client(intents=intents)
+ooyodo_bot = discord.Client(intents=intents)
+kashima_bot = discord.Client(intents=intents)
 
 
 tree = app_commands.CommandTree(fubuki_bot)
@@ -193,6 +197,8 @@ async def join_command(
         kongou_vc = await kongou_bot.get_channel(channel_name.id).connect()
         pola_vc = await pola_bot.get_channel(channel_name.id).connect()
         teruduki_vc = await teruduki_bot.get_channel(channel_name.id).connect()
+        ooyodo_vc = await ooyodo_bot.get_channel(channel_name.id).connect()
+        kashima_vc = await kashima_bot.get_channel(channel_name.id).connect()
     except Exception as e:
         await interaction.response.send_message(f"ボイスチャンネルに接続できませんでした。エラー: {e}")
         return
@@ -247,6 +253,8 @@ async def reset_command(interaction: discord.Interaction):
         discord.app_commands.Choice(name="金剛", value=1),
         discord.app_commands.Choice(name="Pola", value=2),
         discord.app_commands.Choice(name="照月", value=3),
+        discord.app_commands.Choice(name="大淀", value=4),
+        discord.app_commands.Choice(name="鹿島", value=5),
     ]
 )
 async def select_kanmusu_command(
@@ -294,6 +302,8 @@ loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
 loop2.create_task(kongou_bot.start(Kongou_TOKEN))
 loop2.create_task(pola_bot.start(Pola_TOKEN))
 loop2.create_task(teruduki_bot.start(Teruduki_TOKEN))
+loop2.create_task(ooyodo_bot.start(Ooyodo_TOKEN))
+loop2.create_task(kashima_bot.start(Kashima_TOKEN))
 # loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
 # loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
 loop2.run_forever()
