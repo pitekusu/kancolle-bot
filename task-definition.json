@@ -32,6 +32,14 @@
                     "valueFrom": "Pola_TOKEN"
                 },
                 {
+                    "name": "Ooyodo_TOKEN",
+                    "valueFrom": "Ooyodo_TOKEN"
+                },
+                {
+                    "name": "Kashima_TOKEN",
+                    "valueFrom": "Kashima_TOKEN"
+                },
+                {
                     "name": "textChannelId",
                     "valueFrom": "textChannelId"
                 },
