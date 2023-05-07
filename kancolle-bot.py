@@ -124,14 +124,29 @@ async def on_voice_state_update(member, before, after):
         if member.bot:
             return
         if before.channel and after.channel:
-            msg = f":arrows_counterclockwise: {member.display_name} 司令官が {before.channel.name} 鎮守府から {after.channel.name} 鎮守府に異動しました！"
-            await alert_channel.send(msg)
+            embed = discord.Embed(title=":anchor: 人事異動通知", color=0x0000FF)
+            embed.add_field(
+                name=f"{member.display_name} 司令官",
+                value=f"{before.channel.name} 鎮守府から {after.channel.name} 鎮守府に異動しました！",
+                inline=False,
+            )
+            await alert_channel.send(embed=embed)
         elif before.channel:
-            msg = f":outbox_tray: {member.display_name} 司令官が {before.channel.name} 鎮守府から離任されました…"
-            await alert_channel.send(msg)
+            embed = discord.Embed(title=":anchor: 人事異動通知", color=0xFF0000)
+            embed.add_field(
+                name=f"{member.display_name} 司令官",
+                value=f" {before.channel.name} 鎮守府から離任されました…",
+                inline=False,
+            )
+            await alert_channel.send(embed=embed)
         elif after.channel:
-            msg = f":inbox_tray: {member.display_name} 司令官が {after.channel.name} 鎮守府に着任しました！"
-            await alert_channel.send(msg)
+            embed = discord.Embed(title=":anchor: 人事異動通知", color=0x00FF00)
+            embed.add_field(
+                name=f"{member.display_name} 司令官",
+                value=f"{after.channel.name} 鎮守府に着任しました！",
+                inline=False,
+            )
+            await alert_channel.send(embed=embed)
 
 
 @tasks.loop(seconds=1)
