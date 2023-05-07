@@ -36,8 +36,24 @@ class kancolle_table(Model):
     Kanshu_J = UnicodeAttribute(null=False)
 
 
-# 吹雪ちゃん(Id=0)の情報を取得
-Kanmusu = kancolle_table.get(0)
+class kanmusu_select_state(Model):
+    class Meta:
+        aws_access_key_id = os.getenv("aws_access_key_id")
+        aws_secret_access_key = os.getenv("aws_secret_access_key")
+        region = "ap-northeast-1"
+        table_name = "kanmusu_select_state"
+
+    Id = NumberAttribute(hash_key=True)
+    voice_state = NumberAttribute(null=False)
+
+
+BANNER_URL = "https://kancolle-banner.s3.ap-northeast-1.amazonaws.com/"
+
+# DynamoDBから現在の時報担当艦IDを取得
+kanmusu_select_n = kanmusu_select_state.get(0)
+
+# DynamoDBから時報データを取得
+Kanmusu = kancolle_table.get(kanmusu_select_n.voice_state)
 
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 s3 = boto3.resource(
@@ -52,8 +68,8 @@ Pola_TOKEN = os.getenv("Pola_TOKEN")
 Teruduki_TOKEN = os.getenv("Teruduki_TOKEN")
 Ooyodo_TOKEN = os.getenv("Ooyodo_TOKEN")
 Kashima_TOKEN = os.getenv("Kashima_TOKEN")
-# DevFubuki_TOKEN = os.getenv('DevFubuki_TOKEN')
-# DevKongou_TOKEN = os.getenv('DevKongou_TOKEN')
+# DevFubuki_TOKEN = os.getenv("DevFubuki_TOKEN")
+# DevKongou_TOKEN = os.getenv("DevKongou_TOKEN")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 textChannelId = int(os.getenv("textChannelId"))
@@ -158,9 +174,21 @@ async def loop():
         kanmusu_count = len(get_all_kanmusu())
         random_num = random.randint(0, kanmusu_count - 1)
         global Kanmusu
+        global kanmusu_select_n
         Kanmusu = kancolle_table.get(random_num)
+        # 選択された艦娘をkanmusu_select_stateに保存する
+        kanmusu_select_n = kanmusu_select_state.get(0)
+        kanmusu_select_n.voice_state = random_num
+        kanmusu_select_n.save()
+        embed = discord.Embed(title=":anchor: 明日の時報担当艦", color=0x00FF00)
+        embed.set_image(url=f"{BANNER_URL}{Kanmusu.Name}.png")
+        embed.add_field(
+            name=f"明日の時報担当艦が決まりました！",
+            value=f"{Kanmusu.Name_J}",
+            inline=False,
+        )
         alert_channel = fubuki_bot.get_channel(textChannelId)
-        await alert_channel.send(f"明日は{Kanmusu.Name_J}が時刻をお知らせします！")
+        await alert_channel.send(embed=embed)
 
 
 async def play_sound():
@@ -276,10 +304,22 @@ async def select_kanmusu_command(
     interaction: discord.Interaction, kanmusu_name: app_commands.Choice[int]
 ):
     global Kanmusu
+    global kanmusu_select_n
     # 選択された艦娘の名前を取得し、pynamodbのclass kancolle_table(Model)からIdを取得する
     Kanmusu = kancolle_table.get(kanmusu_name.value)
+    # 選択された艦娘をkanmusu_select_stateに保存する
+    kanmusu_select_n = kanmusu_select_state.get(0)
+    kanmusu_select_n.voice_state = kanmusu_name.value
+    kanmusu_select_n.save()
     # 艦娘が選択されたことをメッセージで送信する
-    await interaction.response.send_message(f"{Kanmusu.Name_J}が時報担当艦に選ばれました！")
+    embed = discord.Embed(title=":anchor: 指名した時報担当艦", color=0x00FF00)
+    embed.set_image(url=f"{BANNER_URL}{Kanmusu.Name}.png")
+    embed.add_field(
+        name=f"時報担当艦が選ばれました！",
+        value=f"{Kanmusu.Name_J}",
+        inline=False,
+    )
+    await interaction.response.send_message(embed=embed)
 
 
 # 全ての艦娘を取得する関数
@@ -297,11 +337,13 @@ async def get_kanmusu_list_embed() -> discord.Embed:
     embed = discord.Embed(
         title=":anchor: 艦娘一覧", description="所属している艦娘の一覧です！", color=0x00FF00
     )
+    embed.set_image(url=f"{BANNER_URL}{Kanmusu.Name}.png")
     for kanmusu in kanmusu_list:
         embed.add_field(
             name="名前：" + kanmusu["Name_J"], value="艦種：" + kanmusu["Kanshu_J"]
         )
     embed.add_field(name="人数", value=str(len(kanmusu_list)) + "人", inline=False)
+    embed.add_field(name="現在の時報担当艦", value=f"{Kanmusu.Name_J}", inline=False)
     return embed
 
 
