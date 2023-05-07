@@ -170,7 +170,7 @@ async def loop():
     now = datetime.now(JST).strftime("%H:%M:%S")
     if now in dateTimeList:
         await play_sound()
-    elif now == "00:30:00":
+    elif now == "23:45:00":
         kanmusu_count = len(get_all_kanmusu())
         random_num = random.randint(0, kanmusu_count - 1)
         global Kanmusu
