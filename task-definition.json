@@ -40,6 +40,10 @@
                     "valueFrom": "Kashima_TOKEN"
                 },
                 {
+                    "name": "Specialweek_TOKEN",
+                    "valueFrom": "Specialweek_TOKEN"
+                },
+                {
                     "name": "textChannelId",
                     "valueFrom": "textChannelId"
                 },

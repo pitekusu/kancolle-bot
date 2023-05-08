@@ -68,6 +68,7 @@ Pola_TOKEN = os.getenv("Pola_TOKEN")
 Teruduki_TOKEN = os.getenv("Teruduki_TOKEN")
 Ooyodo_TOKEN = os.getenv("Ooyodo_TOKEN")
 Kashima_TOKEN = os.getenv("Kashima_TOKEN")
+Specialweek_TOKEN = os.getenv("Specialweek_TOKEN")
 # DevFubuki_TOKEN = os.getenv("DevFubuki_TOKEN")
 # DevKongou_TOKEN = os.getenv("DevKongou_TOKEN")
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -88,6 +89,7 @@ pola_bot = discord.Client(intents=intents)
 teruduki_bot = discord.Client(intents=intents)
 ooyodo_bot = discord.Client(intents=intents)
 kashima_bot = discord.Client(intents=intents)
+specialweek_bot = discord.Client(intents=intents)
 
 
 tree = app_commands.CommandTree(fubuki_bot)
@@ -236,19 +238,21 @@ async def join_command(
         return
 
     try:
+        await interaction.response.defer()
         fubuki_vc = await fubuki_bot.get_channel(channel_name.id).connect()
         kongou_vc = await kongou_bot.get_channel(channel_name.id).connect()
         pola_vc = await pola_bot.get_channel(channel_name.id).connect()
         teruduki_vc = await teruduki_bot.get_channel(channel_name.id).connect()
         ooyodo_vc = await ooyodo_bot.get_channel(channel_name.id).connect()
         kashima_vc = await kashima_bot.get_channel(channel_name.id).connect()
+        specialweek_vc = await specialweek_bot.get_channel(channel_name.id).connect()
     except Exception as e:
         await interaction.response.send_message(f"ボイスチャンネルに接続できませんでした。エラー: {e}")
         return
 
     fubuki_msg = f"吹雪以下{str(len(get_all_kanmusu()))}名、{channel_name.name}鎮守府に着任します！"
 
-    await interaction.response.send_message(fubuki_msg)
+    await interaction.followup.send(fubuki_msg)
 
 
 @tree.command(name="talk", description="ブッキーと会話します")
@@ -298,6 +302,7 @@ async def reset_command(interaction: discord.Interaction):
         discord.app_commands.Choice(name="照月", value=3),
         discord.app_commands.Choice(name="大淀", value=4),
         discord.app_commands.Choice(name="鹿島", value=5),
+        discord.app_commands.Choice(name="スペシャルウィーク", value=6),
     ]
 )
 async def select_kanmusu_command(
@@ -361,6 +366,7 @@ loop2.create_task(pola_bot.start(Pola_TOKEN))
 loop2.create_task(teruduki_bot.start(Teruduki_TOKEN))
 loop2.create_task(ooyodo_bot.start(Ooyodo_TOKEN))
 loop2.create_task(kashima_bot.start(Kashima_TOKEN))
+loop2.create_task(specialweek_bot.start(Specialweek_TOKEN))
 # loop2.create_task(fubuki_bot.start(DevFubuki_TOKEN))
 # loop2.create_task(kongou_bot.start(DevKongou_TOKEN))
 loop2.run_forever()
