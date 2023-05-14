@@ -44,6 +44,18 @@
                     "valueFrom": "Specialweek_TOKEN"
                 },
                 {
+                    "name": "Sagiri_TOKEN",
+                    "valueFrom": "Sagiri_TOKEN"
+                },
+                {
+                    "name": "Minegumo_TOKEN",
+                    "valueFrom": "Minegumo_TOKEN"
+                },
+                {
+                    "name": "Hagikaze_TOKEN",
+                    "valueFrom": "Hagikaze_TOKEN"
+                },                
+                {
                     "name": "textChannelId",
                     "valueFrom": "textChannelId"
                 },
