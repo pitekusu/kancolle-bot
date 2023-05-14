@@ -63,7 +63,7 @@ s3 = boto3.resource(
 )
 
 
-KANMUSU_SCAN = Kanmusu.scan()
+KANMUSU_SCAN = kancolle_table.scan()
 
 Fubuki_TOKEN = os.getenv("Fubuki_TOKEN")
 Kongou_TOKEN = os.getenv("Kongou_TOKEN")
@@ -355,6 +355,7 @@ async def get_kanmusu_list_embed() -> discord.Embed:
 async def kanmusu_list_command(interaction: discord.Interaction):
     embed = await get_kanmusu_list_embed()
     await interaction.response.send_message(embed=embed)
+
 
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
