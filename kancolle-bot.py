@@ -62,6 +62,9 @@ s3 = boto3.resource(
     aws_secret_access_key=os.getenv("aws_secret_access_key"),
 )
 
+
+KANMUSU_SCAN = Kanmusu.scan()
+
 Fubuki_TOKEN = os.getenv("Fubuki_TOKEN")
 Kongou_TOKEN = os.getenv("Kongou_TOKEN")
 Pola_TOKEN = os.getenv("Pola_TOKEN")
@@ -296,13 +299,8 @@ async def reset_command(interaction: discord.Interaction):
 @tree.command(name="select", description="時報担当艦を選択します。")
 @discord.app_commands.choices(
     kanmusu_name=[
-        discord.app_commands.Choice(name="吹雪", value=0),
-        discord.app_commands.Choice(name="金剛", value=1),
-        discord.app_commands.Choice(name="Pola", value=2),
-        discord.app_commands.Choice(name="照月", value=3),
-        discord.app_commands.Choice(name="大淀", value=4),
-        discord.app_commands.Choice(name="鹿島", value=5),
-        discord.app_commands.Choice(name="スペシャルウィーク", value=6),
+        discord.app_commands.Choice(name=kanmusu.Name_J, value=kanmusu.Id)
+        for kanmusu in KANMUSU_SCAN
     ]
 )
 async def select_kanmusu_command(
@@ -330,7 +328,7 @@ async def select_kanmusu_command(
 # 全ての艦娘を取得する関数
 def get_all_kanmusu() -> List[Dict[str, Any]]:
     kanmusu_list = []
-    for kanmusu in Kanmusu.scan():
+    for kanmusu in KANMUSU_SCAN:
         kanmusu_list.append(kanmusu.attribute_values)
     return kanmusu_list
 
@@ -357,7 +355,6 @@ async def get_kanmusu_list_embed() -> discord.Embed:
 async def kanmusu_list_command(interaction: discord.Interaction):
     embed = await get_kanmusu_list_embed()
     await interaction.response.send_message(embed=embed)
-
 
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(Fubuki_TOKEN))
