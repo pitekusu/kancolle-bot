@@ -16,44 +16,44 @@
             "essential": true,
             "secrets": [
                 {
-                    "name": "Fubuki_TOKEN",
-                    "valueFrom": "Fubuki_TOKEN"
+                    "name": "fubuki_TOKEN",
+                    "valueFrom": "fubuki_TOKEN"
                 },
                 {
-                    "name": "Kongou_TOKEN",
-                    "valueFrom": "Kongou_TOKEN"
+                    "name": "kongou_TOKEN",
+                    "valueFrom": "kongou_TOKEN"
                 },
                 {
-                    "name": "Teruduki_TOKEN",
-                    "valueFrom": "Teruduki_TOKEN"
+                    "name": "teruduki_TOKEN",
+                    "valueFrom": "teruduki_TOKEN"
                 },
                 {
-                    "name": "Pola_TOKEN",
-                    "valueFrom": "Pola_TOKEN"
+                    "name": "pola_TOKEN",
+                    "valueFrom": "pola_TOKEN"
                 },
                 {
-                    "name": "Ooyodo_TOKEN",
-                    "valueFrom": "Ooyodo_TOKEN"
+                    "name": "ooyodo_TOKEN",
+                    "valueFrom": "ooyodo_TOKEN"
                 },
                 {
-                    "name": "Kashima_TOKEN",
-                    "valueFrom": "Kashima_TOKEN"
+                    "name": "kashima_TOKEN",
+                    "valueFrom": "kashima_TOKEN"
                 },
                 {
-                    "name": "Specialweek_TOKEN",
-                    "valueFrom": "Specialweek_TOKEN"
+                    "name": "specialweek_TOKEN",
+                    "valueFrom": "specialweek_TOKEN"
                 },
                 {
-                    "name": "Sagiri_TOKEN",
-                    "valueFrom": "Sagiri_TOKEN"
+                    "name": "sagiri_TOKEN",
+                    "valueFrom": "sagiri_TOKEN"
                 },
                 {
-                    "name": "Minegumo_TOKEN",
-                    "valueFrom": "Minegumo_TOKEN"
+                    "name": "minegumo_TOKEN",
+                    "valueFrom": "minegumo_TOKEN"
                 },
                 {
-                    "name": "Hagikaze_TOKEN",
-                    "valueFrom": "Hagikaze_TOKEN"
+                    "name": "hagikaze_TOKEN",
+                    "valueFrom": "hagikaze_TOKEN"
                 },                
                 {
                     "name": "textChannelId",
