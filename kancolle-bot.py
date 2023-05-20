@@ -2,6 +2,7 @@ import os
 import asyncio
 from typing import List, Dict, Any
 import random
+import signal
 import boto3
 
 from pathlib import Path
@@ -361,6 +362,22 @@ async def get_kanmusu_list_embed() -> discord.Embed:
 async def kanmusu_list_command(interaction: discord.Interaction):
     embed = await get_kanmusu_list_embed()
     await interaction.response.send_message(embed=embed)
+
+async def send_shutdown_notification():
+    alert_channel = fubuki_bot.get_channel(textChannelId)
+    if alert_channel:
+        embed = discord.Embed(title=":anchor: 訃報", color=0xFF0000)
+        embed.add_field(
+            name=f"全艦娘が轟沈します！",
+            value=f"AWS FargateからSIGTERMシグナルを受信しました。",
+            inline=False,
+        )
+        await alert_channel.send(embed=embed)        
+
+
+def handle_sigterm(signal, frame):
+    loop_sigterm = asyncio.get_event_loop()
+    loop_sigterm.create_task(send_shutdown_notification())
 
 
 loop2 = asyncio.get_event_loop()
