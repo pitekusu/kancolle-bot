@@ -16,4 +16,4 @@ RUN python -m pip install --no-cache-dir \
     boto3 \
     openai
 
-CMD ["python3.11", "kancolle-bot.py"]
+ENTRYPOINT ["python3.11", "kancolle-bot.py"]

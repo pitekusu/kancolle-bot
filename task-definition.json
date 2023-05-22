@@ -13,6 +13,9 @@
                     "appProtocol": "http"
                 }
             ],
+            "linuxParameters": {
+                "initProcessEnabled": true
+            },
             "essential": true,
             "secrets": [
                 {
