@@ -122,6 +122,7 @@ def send_message_chatgpt(message_log):
 @fubuki_bot.event
 async def on_ready():
     print(f"{fubuki_bot.user}BOT起動！")
+    print(f"PID:{os.getpid()}")
     await tree.sync()
     await loop.start()
     await loop2.start()
