@@ -380,6 +380,7 @@ def handle_sigterm(signal, frame):
     loop_sigterm = asyncio.get_event_loop()
     loop_sigterm.create_task(send_shutdown_notification())
 
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(fubuki_TOKEN))
