@@ -197,7 +197,7 @@ async def on_interaction(inter: discord.Interaction):
 async def on_button_click(inter: discord.Interaction):
     custom_id = inter.data["custom_id"]  # inter.dataからcustom_idを取り出す
     if custom_id == "check1":
-        if inter.user.id == 308968829462249473:
+        if inter.user.id == ADMIN_ID:
             await inter.response.defer()
             embed = discord.Embed(
                 title="指令破壊実行", description="指令破壊信号【SIGTERM】を送出しました", color=0xFF0000
@@ -436,11 +436,11 @@ async def kanmusu_list_command(interaction: discord.Interaction):
 async def send_shutdown_notification():
     alert_channel = fubuki_bot.get_channel(textChannelId)
     if alert_channel:
-        embed = discord.Embed(title=":anchor: 訃報", color=0xFF0000)
+        embed = discord.Embed(title=":anchor: そんなっ！ダメですぅ！", color=0xFF0000)
         embed.set_image(url=f"{BANNER_URL}fubuki_damage.png")
         embed.add_field(
             name=f"全艦娘が轟沈します！",
-            value=f"AWS FargateからSIGTERMシグナルを受信しました。",
+            value=f"AWS Fargateからコンテナ停止信号【SIGTERM】を受信しました。",
             inline=False,
         )
         await alert_channel.send(embed=embed)
@@ -451,9 +451,6 @@ def handle_sigterm(signal, frame):
     loop_sigterm.create_task(send_shutdown_notification())
 
 signal.signal(signal.SIGTERM, handle_sigterm)
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-
 
 loop2 = asyncio.get_event_loop()
 loop2.create_task(fubuki_bot.start(fubuki_TOKEN))
