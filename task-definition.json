@@ -63,6 +63,10 @@
                     "valueFrom": "textChannelId"
                 },
                 {
+                    "name": "ADMIN_ID",
+                    "valueFrom": "ADMIN_ID"
+                },
+                {
                     "name": "OPENAI_API_KEY",
                     "valueFrom": "OPENAI_API_KEY"
                 },

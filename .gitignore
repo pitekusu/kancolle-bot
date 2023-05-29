@@ -2,3 +2,4 @@
 aws/
 docker-compose.yml
 kancolle_voice_template.json
+ecs_exec.sh
