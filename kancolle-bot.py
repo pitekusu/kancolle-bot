@@ -175,6 +175,46 @@ async def on_voice_state_update(member, before, after):
             await alert_channel.send(embed=embed)
 
 
+@fubuki_bot.event
+async def on_interaction(inter: discord.Interaction):
+    try:
+        if inter.data["component_type"] == 2:
+            await on_button_click(inter)
+    except KeyError:
+        pass
+
+
+## Buttonの処理
+async def on_button_click(inter: discord.Interaction):
+    custom_id = inter.data["custom_id"]  # inter.dataからcustom_idを取り出す
+    if custom_id == "check1":
+        embed = discord.Embed(
+            title="指令破壊実行",
+            description=inter.user.name + "#" + inter.user.discriminator,
+            color=0xFF0000,
+        )
+    elif custom_id == "check2":
+        embed = discord.Embed(
+            title="キャンセル", description="指令破壊をキャンセルしました！よかった～ｗ", color=0xFFFFFF
+        )
+    await inter.response.send_message(embed=embed)
+    await inter.message.edit(view=None)
+
+
+@tree.command(name="command_destruct", description="指令破壊信号を送出し、艦娘を全員轟沈させます")
+async def command_destruct(interaction: discord.Interaction):
+    kill_button = discord.ui.Button(
+        label="指令破壊実行", style=discord.ButtonStyle.danger, custom_id="check1"
+    )
+    cancel_button = discord.ui.Button(
+        label="キャンセル", style=discord.ButtonStyle.secondary, custom_id="check2"
+    )
+    view = discord.ui.View()
+    view.add_item(kill_button)
+    view.add_item(cancel_button)
+    await interaction.response.send_message("本当に艦娘を指令破壊しますか？", view=view)
+
+
 @tasks.loop(seconds=1)
 async def loop():
     now = datetime.now(JST).strftime("%H:%M:%S")
@@ -364,6 +404,7 @@ async def kanmusu_list_command(interaction: discord.Interaction):
     embed = await get_kanmusu_list_embed()
     await interaction.response.send_message(embed=embed)
 
+
 async def send_shutdown_notification():
     alert_channel = fubuki_bot.get_channel(textChannelId)
     if alert_channel:
@@ -373,7 +414,7 @@ async def send_shutdown_notification():
             value=f"AWS FargateからSIGTERMシグナルを受信しました。",
             inline=False,
         )
-        await alert_channel.send(embed=embed)        
+        await alert_channel.send(embed=embed)
 
 
 def handle_sigterm(signal, frame):
