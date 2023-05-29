@@ -78,6 +78,7 @@ sagiri_TOKEN = os.getenv("sagiri_TOKEN")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 textChannelId = int(os.getenv("textChannelId"))
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 JST = timezone(timedelta(hours=+9), "JST")
 
@@ -188,11 +189,16 @@ async def on_interaction(inter: discord.Interaction):
 async def on_button_click(inter: discord.Interaction):
     custom_id = inter.data["custom_id"]  # inter.dataからcustom_idを取り出す
     if custom_id == "check1":
-        embed = discord.Embed(
-            title="指令破壊実行",
-            description=inter.user.name + "#" + inter.user.discriminator,
-            color=0xFF0000,
-        )
+        if inter.user.id == 308968829462249473:
+            embed = discord.Embed(
+                title="指令破壊実行", description="指令破壊を開始します", color=0xFF0000
+            )
+        else:
+            embed = discord.Embed(
+                title="指令破壊失敗",
+                description=inter.user.name + "はボット管理官じゃないのでダメです！",
+                color=0xFF0000,
+            )
     elif custom_id == "check2":
         embed = discord.Embed(
             title="キャンセル", description="指令破壊をキャンセルしました！よかった～ｗ", color=0xFFFFFF
