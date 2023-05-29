@@ -63,6 +63,14 @@ s3 = boto3.resource(
     aws_secret_access_key=os.getenv("aws_secret_access_key"),
 )
 
+
+ecs_client = boto3.client(
+    "ecs",
+    aws_access_key_id=os.getenv("aws_access_key_id"),
+    aws_secret_access_key=os.getenv("aws_secret_access_key"),
+    region_name="ap-northeast-1",
+)
+
 fubuki_TOKEN = os.getenv("fubuki_TOKEN")
 kongou_TOKEN = os.getenv("kongou_TOKEN")
 pola_TOKEN = os.getenv("pola_TOKEN")
@@ -190,20 +198,34 @@ async def on_button_click(inter: discord.Interaction):
     custom_id = inter.data["custom_id"]  # inter.dataからcustom_idを取り出す
     if custom_id == "check1":
         if inter.user.id == 308968829462249473:
+            await inter.response.defer()
             embed = discord.Embed(
-                title="指令破壊実行", description="指令破壊を開始します", color=0xFF0000
+                title="指令破壊実行", description="指令破壊信号【SIGTERM】を送出しました", color=0xFF0000
             )
+            #ECSのクラスター名を取得する
+            response = ecs_client.list_clusters()
+            cluster_name = response["clusterArns"][0]
+            #ECSのタスク名を取得する
+            response = ecs_client.list_tasks(cluster=cluster_name)
+            task_name = response["taskArns"][0]
+            #ECSのタスクを停止する
+            response = ecs_client.stop_task(
+                cluster=cluster_name, task=task_name, reason="指令破壊"
+            )
+            print(response)
         else:
+            await inter.response.defer()
             embed = discord.Embed(
                 title="指令破壊失敗",
                 description=inter.user.name + "司令官はボット管理官じゃないのでダメです！",
                 color=0xFF0000,
             )
     elif custom_id == "check2":
+        await inter.response.defer()
         embed = discord.Embed(
             title="キャンセル", description="指令破壊をキャンセルしました！よかった～ｗ", color=0xFFFFFF
         )
-    await inter.response.send_message(embed=embed)
+    await inter.followup.send(embed=embed)
     await inter.message.edit(view=None)
 
 
