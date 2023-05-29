@@ -196,7 +196,7 @@ async def on_button_click(inter: discord.Interaction):
         else:
             embed = discord.Embed(
                 title="指令破壊失敗",
-                description=inter.user.name + "はボット管理官じゃないのでダメです！",
+                description=inter.user.name + "司令官はボット管理官じゃないのでダメです！",
                 color=0xFF0000,
             )
     elif custom_id == "check2":
@@ -415,6 +415,7 @@ async def send_shutdown_notification():
     alert_channel = fubuki_bot.get_channel(textChannelId)
     if alert_channel:
         embed = discord.Embed(title=":anchor: 訃報", color=0xFF0000)
+        embed.set_image(url=f"{BANNER_URL}fubuki_damage.png")
         embed.add_field(
             name=f"全艦娘が轟沈します！",
             value=f"AWS FargateからSIGTERMシグナルを受信しました。",
@@ -426,6 +427,9 @@ async def send_shutdown_notification():
 def handle_sigterm(signal, frame):
     loop_sigterm = asyncio.get_event_loop()
     loop_sigterm.create_task(send_shutdown_notification())
+
+
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 
 loop2 = asyncio.get_event_loop()
