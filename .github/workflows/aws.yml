@@ -29,6 +29,11 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Dockerfile'
+      - 'kancolle-bot.py'
+      - 'task-definition.json'
+      - '.github/workflows/aws.yml'
 
 env:
   AWS_REGION: ap-northeast-1                   # set this to your preferred AWS region, e.g. us-west-1
@@ -60,14 +65,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR Public
+    - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-#    パブリックリポジトリ 
-#      with:
-#        registry-type: public
 
-#    プライベートリポジトリ
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
@@ -77,16 +78,6 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#    - name: Build, tag, and push docker image to Amazon ECR Public
-#      id: build-image
-#      env:
-#        ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-#        IMAGE_TAG: ${{ github.sha }}
-#      run: |
-#        docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
-#        docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
-#        echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
@@ -104,7 +95,7 @@ jobs:
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
     - name: Actions Status Discord
-      uses: sarisia/actions-status-discord@v1.11.1
+      uses: sarisia/actions-status-discord@v1.12.0
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
