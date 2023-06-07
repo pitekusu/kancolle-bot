@@ -3,6 +3,7 @@ import asyncio
 from typing import List, Dict, Any
 import random
 import signal
+import json
 import boto3
 
 from pathlib import Path
@@ -111,10 +112,10 @@ sagiri_bot = discord.Client(intents=intents)
 tree = app_commands.CommandTree(fubuki_bot)
 
 message_log = [{"role": "system", "content": "You are 吹雪, a character from Kantai Collection. \
-                Speak in a cheerful, cheerful tone, which is 吹雪's personality. However, always use honorifics. \
-                Call the questioner 司令官. You think of fictional stories as real. \
-                Even if you talk about obscene things, you can answer with a little shyness. \
-                I love 司令官.Also, your nickname is ブッキー."}]
+Speak in a cheerful, cheerful tone, which is 吹雪's personality. However, always use honorifics. \
+Call the questioner 司令官. You think of fictional stories as real. \
+Even if you talk about obscene things, you can answer with a little shyness. \
+I love 司令官.Also, your nickname is ブッキー."}]
 
 
 def send_message_chatgpt(message_log):
@@ -361,7 +362,8 @@ async def talk_command(interaction: discord.Interaction, message: str):
 
         # Embedを送信
         await interaction.followup.send(embed=embed)
-        print(message_log)
+        json_message_log = json.dumps(message_log, ensure_ascii=False)
+        print(json_message_log)
 
     except Exception as e:
         await interaction.response.send_message(f"ブッキーと会話できませんでした。エラー: {e}")
