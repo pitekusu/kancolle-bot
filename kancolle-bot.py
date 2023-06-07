@@ -343,7 +343,7 @@ async def talk_command(interaction: discord.Interaction, message: str):
     global message_log
 
     if len(message_log) >= 10:
-        message_log = message_log[5:]
+        message_log = message_log[:1] + message_log[4:]
 
     try:
         await interaction.response.defer()
@@ -361,6 +361,7 @@ async def talk_command(interaction: discord.Interaction, message: str):
 
         # Embedを送信
         await interaction.followup.send(embed=embed)
+        print(message_log)
 
     except Exception as e:
         await interaction.response.send_message(f"ブッキーと会話できませんでした。エラー: {e}")
@@ -370,7 +371,7 @@ async def talk_command(interaction: discord.Interaction, message: str):
 @tree.command(name="reset", description="ブッキーが記憶を失います")
 async def reset_command(interaction: discord.Interaction):
     global message_log
-    message_log = []
+    message_log = message_log[:1]
 
     # リセットメッセージの送信
     await interaction.response.send_message(":zany_face: 私は記憶を失いました。な～んにもわからないです！")
