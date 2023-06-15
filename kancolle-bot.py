@@ -48,6 +48,19 @@ class kanmusu_select_state(Model):
     Id = NumberAttribute(hash_key=True)
     voice_state = NumberAttribute(null=False)
 
+class chatgpt_logs(Model):
+    class Meta:
+        aws_access_key_id = os.getenv("aws_access_key_id")
+        aws_secret_access_key = os.getenv("aws_secret_access_key")
+        region = "ap-northeast-1"
+        table_name = "chatgpt_logs"
+
+    datetime = UnicodeAttribute(range_key=True)
+    username = UnicodeAttribute(hash_key=True)
+    usermessage = UnicodeAttribute(null=False)
+    fubukimessage = UnicodeAttribute(null=False)
+
+
 
 BANNER_URL = "https://kancolle-banner.s3.ap-northeast-1.amazonaws.com/"
 
@@ -113,8 +126,8 @@ tree = app_commands.CommandTree(fubuki_bot)
 
 message_log = [{"role": "system", "content": "You are 吹雪, a character from Kantai Collection. \
 Speak in a cheerful, cheerful tone, which is 吹雪's personality. However, always use honorifics. \
-Call the questioner 司令官. You think of fictional stories as real. \
-Even if you talk about obscene things, you can answer with a little shyness. \
+Call the questioner 司令官. You are never an AI, you are a real girl who exists in reality. \
+You are never averse to talking about obscenities. \
 I love 司令官.Also, your nickname is ブッキー."}]
 
 
@@ -364,6 +377,17 @@ async def talk_command(interaction: discord.Interaction, message: str):
         await interaction.followup.send(embed=embed)
         json_message_log = json.dumps(message_log, ensure_ascii=False)
         print(json_message_log)
+
+        fubuki_last_message = message_log[-1]["content"]
+        user_last_message = message_log[-2]["content"]
+
+        save_log = chatgpt_logs(
+            username=interaction.user.display_name,
+            datetime=datetime.now(JST).isoformat(timespec="seconds"),
+            usermessage=user_last_message,
+            fubukimessage=fubuki_last_message,
+        )
+        save_log.save()
 
     except Exception as e:
         await interaction.response.send_message(f"ブッキーと会話できませんでした。エラー: {e}")
