@@ -4,15 +4,7 @@
             "name": "kancolle-bot",
             "image": "kancolle-bot",
             "cpu": 0,
-            "portMappings": [
-                {
-                    "name": "kancolle-bot-80-tcp",
-                    "containerPort": 80,
-                    "hostPort": 80,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
+            "portMappings": [],
             "linuxParameters": {
                 "initProcessEnabled": true
             },
