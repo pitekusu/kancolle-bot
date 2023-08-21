@@ -7,9 +7,8 @@ COPY . /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN python -m pip install --no-cache-dir \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir \
     discord.py[voice] \
     python-dotenv \
     pynamodb \
