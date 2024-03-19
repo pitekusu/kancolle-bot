@@ -18,7 +18,7 @@ from discord import app_commands
 from pynamodb.attributes import ListAttribute, NumberAttribute, UnicodeAttribute
 from pynamodb.models import Model
 
-import openai
+from openai import OpenAI
 
 load_dotenv()
 
@@ -48,6 +48,7 @@ class kanmusu_select_state(Model):
     Id = NumberAttribute(hash_key=True)
     voice_state = NumberAttribute(null=False)
 
+
 class chatgpt_logs(Model):
     class Meta:
         aws_access_key_id = os.getenv("aws_access_key_id")
@@ -59,7 +60,6 @@ class chatgpt_logs(Model):
     username = UnicodeAttribute(hash_key=True)
     usermessage = UnicodeAttribute(null=False)
     fubukimessage = UnicodeAttribute(null=False)
-
 
 
 BANNER_URL = "https://kancolle-banner.s3.ap-northeast-1.amazonaws.com/"
@@ -97,7 +97,7 @@ hagikaze_TOKEN = os.getenv("hagikaze_TOKEN")
 sagiri_TOKEN = os.getenv("sagiri_TOKEN")
 # DevFubuki_TOKEN = os.getenv("DevFubuki_TOKEN")
 # DevKongou_TOKEN = os.getenv("DevKongou_TOKEN")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+ai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 textChannelId = int(os.getenv("textChannelId"))
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
@@ -132,7 +132,7 @@ I love 司令官.Also, your nickname is ブッキー."}]
 
 
 def send_message_chatgpt(message_log):
-    response = openai.ChatCompletion.create(
+    response = ai_client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=message_log,
         max_tokens=2000,
